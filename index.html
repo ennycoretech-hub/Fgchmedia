@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Media Library</title>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.1.0"></script>
+<link rel="icon" type="image/png" href="favicon.png">
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "ys7tere3f4");
+</script>
+
+    <link rel="apple-touch-icon" href="favicon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="FGC Haastrup  Media — Audio Media Library" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fgchmedia.netlify.app" />
+    <meta property="og:image" content="https://fgchmedia.netlify.app/fav.jpeg" />
+    <meta property="og:description" content="Browse and stream our full collection of recorded sessions, Sermon, prayer, and Bible studies — anytime, anywhere." />
+    <meta property="og:site_name" content="FGC Haastrup Media " />
+
+<style>
+  /* ============ Claude-inspired dark / red theme ============ */
+  :root {
+    --bg: #0e0c0c;
+    --card: #1b1616;
+    --card-2: #161212;
+    --field: #0b0909;
+    --line: #2c2424;
+    --line-strong: #3d3131;
+    --text: #f4efec;
+    --muted: #a59893;
+    --muted-dim: #6f625e;
+
+    --red: #e5484d;
+    --red-bright: #ef5358;
+    --red-deep: #d13a3f;
+    --red-soft: rgba(229, 72, 77, .13);
+    --red-line: rgba(229, 72, 77, .45);
+
+    --gold: #e3b341;
+    --radius: 18px;
+    --shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 24px 48px -28px rgba(0, 0, 0, .95);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    background:
+      radial-gradient(900px 420px at 50% -180px, rgba(229, 72, 77, .20), transparent 70%),
+      radial-gradient(700px 380px at 100% 0%, rgba(229, 72, 77, .07), transparent 65%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.6;
+    padding: 44px 16px 180px;
+    max-width: 900px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+#inp {
+  flex: 1 1 26px;
+  min-width: 0;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  letter-spacing: -.005em;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--field);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+#inp::placeholder { color: var(--muted-dim); }
+#inp:hover { border-color: var(--line-strong); }
+#inp:focus {
+  border-color: var(--red);
+  background: #0d0a0a;
+  box-shadow: 0 0 0 3px var(--red-soft);
+}
+  /* ---------------- Header ---------------- */
+  header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  header > div { width: 100%; }
+
+  header h1 {
+    font-size: clamp(1.6rem, 4.6vw, 2.15rem);
+    font-weight: 650;
+    letter-spacing: -.032em;
+    line-height: 1.12;
+    color: var(--text);
+  }
+  header p {
+    color: var(--muted);
+    font-size: .92rem;
+    max-width: 54ch;
+    line-height: 1.6;
+  }
+
+  /* ---------------- Live ticker (marquee) ---------------- */
+  #mar {
+    display: block;
+    width: 100%;
+    padding: 11px 16px;
+    font-size: .84rem;
+    font-weight: 600;
+    letter-spacing: .005em;
+    color: #ffd7d8;
+    background: linear-gradient(180deg, rgba(229, 72, 77, .18), rgba(229, 72, 77, .06));
+    border: 1px solid var(--red-line);
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px rgba(229, 72, 77, .06),
+                0 18px 40px -30px rgba(229, 72, 77, .9);
+  }
+  #mar:empty { display: none; }
+
+  /* ---------------- Controls ---------------- */
+  .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    padding: 16px;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+
+   button {
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    padding: 11px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s, background .15s,
+                color .15s, filter .15s, transform .08s;
+  }
+
+
+   button:hover { border-color: var(--line-strong); }
+
+   button:focus-visible {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px var(--red-soft);
+  }
+
+  #sea {
+    background: linear-gradient(180deg, var(--red-bright), var(--red-deep));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22),
+                0 12px 26px -14px rgba(229, 72, 77, .95);
+  }
+  #sea:hover { filter: brightness(1.07); }
+  #sea:active { transform: translateY(1px); }
+
+  #res {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--text);
+    display: none; /* toggled by JS */
+  }
+  #res:hover {
+    border-color: var(--red);
+    color: #ffb3b5;
+    background: var(--red-soft);
+  }
+
+  /* ---------------- Archive grid ---------------- */
+  #hea {
+    width: 100%;
+    display: grid;
+    gap: 20px;
+  }
+
+  /* ---------------- Media card ---------------- */
+  .panel {
+    position: relative;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--red);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    font-weight: 600;
+    overflow: auto;
+    animation: cardIn .35s cubic-bezier(.2, .8, .3, 1);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .panel:hover {
+    transform: translateY(-3px);
+    border-color: var(--line-strong);
+    border-left-color: var(--red-bright);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .04),
+                0 30px 60px -34px rgba(0, 0, 0, 1),
+                0 0 0 1px rgba(229, 72, 77, .10);
+  }
+
+  .panel p { margin-bottom: 10px; font-size: .93rem;
+  text-transform: capitalize ;
+    
+  }
+  .panel p:last-of-type { margin-bottom: 16px; }
+
+  /* 1 — Title / event */
+  .panel p:first-child {
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: -.018em;
+    color: var(--red-bright);
+    margin-bottom: 12px;
+    line-height: 1.35;
+  }
+
+  /* 2 — Date pill */
+  .panel p:nth-child(2) {
+    display: inline-block;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* 3 — Speaker */
+  .panel p:nth-child(3) {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* 4 — Topic */
+  .panel p:nth-child(4) {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* 5 — Reference */
+  .panel p:nth-child(5) {
+    color: var(--muted);
+    font-size: .85rem;
+    font-style: italic;
+    font-weight: 500;
+    margin-bottom: 18px;
+  }
+
+  /* 6 — Listen link */
+  .panel a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--red-soft);
+    border: 1px solid var(--red-line);
+    color: #ffb3b5;
+    font-size: .82rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: .01em;
+    transition: background .15s, color .15s, border-color .15s, transform .08s;
+  }
+  .panel a::after { content: "→"; font-size: .95em; line-height: 1; }
+  .panel a:hover {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .panel a:active { transform: translateY(1px); }
+
+  /* ---------------- Error card (no class in markup) ---------------- */
+  #hea > div:not(.panel):not(.pan) {
+    padding: 22px 24px;
+    border: 1px solid var(--red-line);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(229, 72, 77, .16), rgba(229, 72, 77, .06));
+    color: #ffd7d8;
+    font-size: .92rem;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 18px 40px -30px rgba(229, 72, 77, .9);
+    animation: cardIn .35s cubic-bezier(.2, .8, .3, 1);
+  }
+
+  /* ---------------- Live panel (fixed bottom) ---------------- */
+  #top {
+    position: fixed;
+    bottom: 16px;
+    left: 4%;
+    right: 4%;
+    z-index: 50;
+    pointer-events: none;
+  }
+  #top > * { pointer-events: auto; }
+
+  .pan {
+    position: relative;
+    background: linear-gradient(180deg, #251717, #1a1011);
+    border: 1px solid var(--red-line);
+    border-left: 4px solid var(--red-bright);
+    border-radius: 16px;
+    padding: 18px 22px;
+    color: var(--text);
+    font-weight: 600;
+    overflow: auto;
+    box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .92),
+                0 0 0 1px rgba(229, 72, 77, .15),
+                0 0 70px -24px rgba(229, 72, 77, .55);
+    animation: liveIn .3s cubic-bezier(.2, .8, .3, 1);
+  }
+
+  @keyframes liveIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  .pan p { margin-bottom: 8px; font-size: .92rem; }
+
+  /* 1 — Live notice */
+  .pan p:first-child {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #ffb3b5;
+    font-size: .83rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed rgba(229, 72, 77, .3);
+  }
+  .pan p:first-child::before {
+    content: "";
+    flex: 0 0 8px;
+    width: 8px;
+    height: 8px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--red-bright);
+    box-shadow: 0 0 0 4px rgba(229, 72, 77, .2);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(229, 72, 77, .22); opacity: 1; }
+    50%      { box-shadow: 0 0 0 9px rgba(229, 72, 77, 0);   opacity: .78; }
+  }
+
+  /* 2 — Event */
+  .pan p:nth-child(2) {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -.018em;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  /* 3 — Date */
+  .pan p:nth-child(3) {
+    color: var(--muted);
+    font-size: .73rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  /* 4 — Speaker */
+  .pan p:nth-child(4) { color: var(--text); font-weight: 600; }
+
+  /* 5 — Topic */
+  .pan p:nth-child(5) { color: var(--gold); font-weight: 600; }
+
+  /* 6 — Reference */
+  .pan p:nth-child(6) {
+    color: var(--muted);
+    font-size: .85rem;
+    font-style: italic;
+    font-weight: 500;
+    margin-bottom: 0;
+  }
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width: 600px) {
+    body { padding: 28px 14px 200px; }
+
+    .controls {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 14px;
+    }
+
+     button { width: 100%; }
+
+    .panel { padding: 20px 20px; border-radius: 14px; }
+    .panel p:first-child { font-size: 1rem; }
+
+    #top { bottom: 10px; left: 3%; right: 3%; }
+    .pan { padding: 16px 18px; border-radius: 14px; }
+    .pan p:first-child { font-size: .78rem; }
+    .pan p:nth-child(2) { font-size: .98rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <marquee behavior="scroll" direction="left" id="mar"></marquee>
+    </div>
+    <h1>Audio Media Library</h1>
+    <p>Browse and stream our full collection of recorded sessions, talks, and studies.</p>
+  </header>
+
+  <div class="controls">
+<input type="text" id="inp" placeholder="Search by speaker, topic, event…" aria-label="Search the archive">
+    <button id="sea">Apply Filter</button>
+    <button id="res">Clear Filter</button>
+  </div>
+
+  <div id="hea"></div>
+  <div id="top"></div>
+
+<script>
+let data
+async function fft(){
+  try {
+    let ff = await fetch('https://sheetlabs.com/ET/MediaDB_1')
+    let sf = await ff.json()
+    console.log(sf)
+    data = sf
+    data.reverse()
+    upd()
+    liv()
+    loadfuzz()
+    
+  } catch {
+    let gf = document.createElement('div')
+    gf.innerHTML = 'Unable to load the library. Please refresh the page to try again.'
+    hea.appendChild(gf)
+  }
+}
+fft()
+</script>
+
+<script type="text/javascript" charset="utf-8">
+let hea = document.getElementById('hea')
+let inp = document.getElementById('inp')
+let res = document.getElementById('res')
+let topu = document.getElementById('top')
+let matched
+let searchEngine
+let mar = document.getElementById('mar')
+function loadfuzz(){
+   searchEngine = new Fuse(data, {
+  keys: ['minister', 'topic', 'month', 'year', 'day', 'event'],
+  threshold: 0.4
+  
+})
+}
+function upd(){
+  hea.replaceChildren()
+  res.style.display = 'none'
+
+  for(let i = 0; i < data.length; i++){
+    let pd = document.createElement('div')
+    pd.id = i
+    let pp = document.createElement('p')
+    let sp = document.createElement('p')
+    let tp = document.createElement('p')
+    let fp = document.createElement('p')
+    let fhp = document.createElement('p')
+    let spp = document.createElement('a')
+    pd.className = 'panel'
+    tp.innerHTML = `${data[i].event}`
+    pp.innerHTML = `Topic — ${data[i].topic}`
+    fp.innerHTML = `Speaker — ${data[i].minister}`
+    fhp.innerHTML = `Reference — ${data[i].text}`
+    sp.innerHTML = `Date — ${data[i].day} of ${data[i].month}, ${data[i].year}`
+    spp.innerHTML = 'Listen Now'
+    spp.href = `${data[i].listenlink}`
+    console.log(i)
+    pd.appendChild(tp)
+    pd.appendChild(sp)
+    pd.appendChild(fp)
+    pd.appendChild(pp)
+    pd.appendChild(fhp)
+    pd.appendChild(spp)
+    hea.appendChild(pd)
+  }
+}
+
+function updi() {
+  document.getElementById('res').style.display='block'
+  hea.replaceChildren()
+
+  if(inp.value.trim()!= ''){
+  matched = searchEngine.search(inp.value.trim())
+  
+
+    if(matched.length > 0){
+  for (let i = 0; i < matched.length; i++) {
+    let pd = document.createElement('div')
+    let pp = document.createElement('p')
+    let sp = document.createElement('p')
+    let tp = document.createElement('p')
+    let fp = document.createElement('p')
+    let fhp = document.createElement('p')
+    let spp = document.createElement('a')
+    pd.className = 'panel'
+
+    tp.innerHTML = `${matched[i].item.event}`
+    pp.innerHTML = `Topic — ${matched[i].item.topic}`
+    fp.innerHTML = `Speaker — ${matched[i].item.minister}`
+    fhp.innerHTML = `Reference — ${matched[i].item.text}`
+    spp.innerHTML = 'Listen Now'
+    spp.href = `${matched[i].item.listenlink}`
+    sp.innerHTML = `Date — ${matched[i].item.day} of ${matched[i].item.month}, ${matched[i].item.year}`
+    console.log(i)
+    pd.appendChild(tp)
+    pd.appendChild(sp)
+    pd.appendChild(fp)
+    pd.appendChild(pp)
+    pd.appendChild(fhp)
+    pd.appendChild(spp)
+    hea.appendChild(pd)
+  }
+}else{
+  let gf = document.createElement('div')
+    gf.innerHTML = `${inp.value.trim()} not found.Please try another keyword`
+    hea.appendChild(gf)
+}
+}else{
+  upd()
+}
+}
+
+function liv(){
+  topu.replaceChildren()
+  for(let i = 0; i < data.length; i++){
+    if(data[i].live == '1'){
+      let pd = document.createElement('div')
+      let ppf = document.createElement('p')
+      let pp = document.createElement('p')
+      let sp = document.createElement('p')
+      let tp = document.createElement('p')
+      let fp = document.createElement('p')
+      let fhp = document.createElement('p')
+
+      mar.innerHTML = `● LIVE  ·  ${data[i].livelink}  —  ${data[i].topic}  ·  Speaker: ${data[i].minister}  ·  ${data[i].text}  ·  ${data[i].day} of ${data[i].month}, ${data[i].year}`
+
+      pd.className = 'pan'
+      tp.innerHTML = `${data[i].event}`
+      pp.innerHTML = `Topic — ${data[i].topic}`
+      fp.innerHTML = `Speaker — ${data[i].minister}`
+      fhp.innerHTML = `Reference — ${data[i].text}`
+      ppf.innerHTML = `Live broadcast — ${data[i].livelink}`
+      sp.innerHTML = `Date — ${data[i].day} of ${data[i].month}, ${data[i].year}`
+      console.log(i)
+      pd.appendChild(ppf)
+      pd.appendChild(tp)
+      pd.appendChild(sp)
+      pd.appendChild(fp)
+      pd.appendChild(pp)
+      pd.appendChild(fhp)
+      topu.appendChild(pd)
+      break
+    }
+  }
+}
+
+document.getElementById('sea').addEventListener('click', updi)
+document.getElementById('res').addEventListener('click', upd)
+</script>
+</body>
+</html>

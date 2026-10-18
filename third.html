@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>End Live Session</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  
+    <link rel="apple-touch-icon" href="/favicon.png">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="FGC Media — Audio Media Library" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fgcmedia.netlify.app" />
+    <meta property="og:image" content="https://fgcmedia.netlify.app/favicon.png" />
+    <meta property="og:description" content="Browse and stream our full collection of recorded sessions, talks, and Bible studies — anytime, anywhere." />
+    <meta property="og:site_name" content="FGC Media" />
+
+  <style>
+    :root {
+      --bg: #0e0c0c;
+      --card: #1b1616;
+      --card-2: #161212;
+      --field: #0b0909;
+      --line: #2c2424;
+      --line-strong: #3d3131;
+      --text: #f4efec;
+      --muted: #a59893;
+      --muted-dim: #6f625e;
+
+      --red: #e5484d;
+      --red-bright: #ef5358;
+      --red-deep: #d13a3f;
+      --red-soft: rgba(229, 72, 77, .13);
+      --red-line: rgba(229, 72, 77, .45);
+
+      --green: #3fb950;
+      --gold: #e3b341;
+
+      --radius: 18px;
+      --shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 24px 48px -28px rgba(0, 0, 0, .95);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 44px 16px 72px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 50% -180px, rgba(229, 72, 77, .20), transparent 70%),
+        radial-gradient(700px 380px at 100% 0%, rgba(229, 72, 77, .07), transparent 65%),
+        var(--bg);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+
+    .page-head { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 4px var(--red-soft);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4.2vw, 1.85rem);
+      font-weight: 650;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.6;
+    }
+    .sub code, .hint code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .82rem;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: #ffd4d5;
+    }
+
+    .banner-host { display: grid; gap: 12px; }
+
+    .banner {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .02);
+      animation: bannerIn .28s cubic-bezier(.2, .8, .3, 1);
+      transition: opacity .25s, transform .25s;
+    }
+    .banner.is-leaving { opacity: 0; transform: translateY(-6px); }
+    @keyframes bannerIn {
+      from { opacity: 0; transform: translateY(-8px) scale(.99); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .banner-icon { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 2px; }
+    .banner-icon svg { display: block; width: 100%; height: 100%; }
+
+    .banner-body { min-width: 0; }
+    .banner-title {
+      font-size: .92rem;
+      font-weight: 650;
+      color: #fff;
+      letter-spacing: -.01em;
+      margin-bottom: 3px;
+    }
+    .banner-msg { font-size: .85rem; line-height: 1.55; opacity: .9; }
+    .banner-msg code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .8rem;
+      background: rgba(0, 0, 0, .35);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+      color: #ffd4d5;
+    }
+
+    .banner-close {
+      margin-left: auto;
+      flex: 0 0 auto;
+      background: transparent;
+      border: 1px solid transparent;
+      color: inherit;
+      opacity: .55;
+      font-size: .95rem;
+      line-height: 1;
+      padding: 4px 7px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: .15s;
+    }
+    .banner-close:hover { opacity: 1; background: rgba(255, 255, 255, .07); }
+
+    .banner-error {
+      background: linear-gradient(180deg, rgba(229, 72, 77, .16), rgba(229, 72, 77, .06));
+      border-color: var(--red-line);
+      box-shadow: 0 0 0 1px rgba(229, 72, 77, .08), 0 18px 40px -30px rgba(229, 72, 77, .9);
+      color: #ffd7d8;
+    }
+    .banner-error .banner-icon { color: var(--red-bright); }
+
+    .banner-success {
+      background: linear-gradient(180deg, rgba(63, 185, 80, .15), rgba(63, 185, 80, .05));
+      border-color: rgba(63, 185, 80, .42);
+      color: #d6f7dc;
+    }
+    .banner-success .banner-icon { color: var(--green); }
+
+    .banner-info {
+      background: linear-gradient(180deg, rgba(229, 72, 77, .08), rgba(255, 255, 255, .02));
+      border-color: var(--line-strong);
+      color: var(--muted);
+    }
+    .banner-info .banner-icon { color: var(--muted); }
+
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-loading {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+    }
+    .card-loading::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--red-bright), transparent);
+      animation: barSlide 1.1s ease-in-out infinite;
+    }
+    @keyframes barSlide {
+      0%   { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+    form.is-busy .card-loading { opacity: 1; }
+    form.is-busy .field,
+    form.is-busy .row-meta { opacity: .5; pointer-events: none; transition: opacity .2s; }
+    form.is-busy .actions .ghost { opacity: .5; pointer-events: none; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--red-soft);
+      border: 1px solid rgba(229, 72, 77, .3);
+      color: #ffb3b5;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 5px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .pill.is-live {
+      background: rgba(229, 72, 77, .22);
+      border-color: var(--red);
+      color: #fff;
+    }
+    .pill.is-empty {
+      background: rgba(255, 255, 255, .04);
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    .live-body { display: grid; gap: 18px; }
+
+    .live-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(229, 72, 77, .14);
+      border: 1px solid var(--red-line);
+      color: #ffb3b5;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      width: max-content;
+    }
+    .live-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red-bright);
+      box-shadow: 0 0 0 4px rgba(229, 72, 77, .22);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(229, 72, 77, .22); opacity: 1; }
+      50%      { box-shadow: 0 0 0 9px rgba(229, 72, 77, 0);   opacity: .78; }
+    }
+
+    .meta {
+      margin: 0;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .meta > div { min-width: 0; }
+    .meta dt {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .meta dd {
+      margin: 0;
+      font-size: .93rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .meta dd a {
+      color: #ffb3b5;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(229, 72, 77, .4);
+      transition: color .15s, border-color .15s;
+    }
+    .meta dd a:hover { color: #fff; border-color: #fff; }
+
+    .live-empty {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 6px 0;
+      color: var(--muted);
+    }
+    .live-empty .ico {
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      color: var(--muted-dim);
+      margin-top: 2px;
+    }
+    .live-empty .ico svg { display: block; width: 100%; height: 100%; }
+    .live-empty strong {
+      display: block;
+      color: var(--text);
+      font-size: .95rem;
+      font-weight: 650;
+      margin-bottom: 2px;
+    }
+    .live-empty span { font-size: .88rem; line-height: 1.55; }
+
+    .field { display: block; }
+    label {
+      display: block;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: .95rem;
+      color: var(--text);
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    input[type="text"]::placeholder { color: var(--muted-dim); }
+    input[type="text"]:hover { border-color: var(--line-strong); }
+    input[type="text"]:focus {
+      border-color: var(--red);
+      background: #0d0a0a;
+      box-shadow: 0 0 0 3px var(--red-soft);
+    }
+    input[type="text"]:disabled { opacity: .5; cursor: not-allowed; }
+    .hint {
+      margin: 8px 0 0;
+      font-size: .8rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .row-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .015);
+      font-size: .82rem;
+      color: var(--muted);
+    }
+    .row-meta code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .82rem;
+      color: #ffd4d5;
+      background: rgba(229, 72, 77, .1);
+      border: 1px solid var(--red-line);
+      border-radius: 6px;
+      padding: 3px 9px;
+      max-width: 60%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 650;
+      letter-spacing: -.005em;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s,
+                  filter .15s, transform .08s, opacity .15s;
+    }
+    button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--red-soft), 0 0 0 1px var(--red);
+    }
+
+    .primary {
+      background: linear-gradient(180deg, var(--red-bright), var(--red-deep));
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22),
+                  0 12px 26px -14px rgba(229, 72, 77, .95);
+    }
+    .primary:hover:not(:disabled) { filter: brightness(1.07); }
+    .primary:active:not(:disabled) { transform: translateY(1px); }
+    .primary:disabled {
+      cursor: not-allowed;
+      filter: saturate(.5) brightness(.7);
+      box-shadow: none;
+    }
+
+    .ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--text);
+    }
+    .ghost:hover:not(:disabled) {
+      border-color: var(--red);
+      color: #ffb3b5;
+      background: var(--red-soft);
+    }
+
+    .spinner {
+      display: none;
+      width: 15px;
+      height: 15px;
+      flex: 0 0 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, .35);
+      border-top-color: #fff;
+      animation: spin .65s linear infinite;
+    }
+    .primary.is-loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      body { padding: 28px 14px 56px; }
+      .card { padding: 22px 18px; border-radius: 16px; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+      .row-meta { flex-direction: column; align-items: flex-start; }
+      .row-meta code { max-width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <header class="page-head">
+      <span class="eyebrow">Broadcast Control</span>
+      <h1>End Live Session</h1>
+      <p class="sub">
+        Closes the currently live broadcast and moves it into the on-demand library
+        by setting <code>live</code> to <code>"0"</code> and pointing
+        <code>listenlink</code> at the archive URL.
+      </p>
+    </header>
+
+    <div class="banner-host" id="bannerHost" aria-live="polite"></div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Current live session</h2>
+        <span class="pill is-empty" id="livePill">Checking…</span>
+      </div>
+      <div class="live-body" id="liveBody">
+        <div class="live-empty">
+          <span class="ico">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v5l3 2"></path>
+            </svg>
+          </span>
+          <div>
+            <strong>Loading live status…</strong>
+            <span>Fetching the current session from the server.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <form class="card" id="endForm" novalidate>
+      <div class="card-loading"></div>
+
+      <div class="card-head">
+        <h2>Archive settings</h2>
+        <span class="pill">PATCH · MediaDB_1</span>
+      </div>
+
+      <div class="field">
+        <label for="listenlink">Listen Link (on-demand)</label>
+        <input type="text" id="listenlink" name="listenlink"
+               placeholder="https://..." disabled autocomplete="off" spellcheck="false">
+        <p class="hint">
+          Prefilled from the live broadcast URL. Update it if the archive link differs —
+          this becomes the permanent on-demand URL for this session.
+        </p>
+      </div>
+
+      <div class="row-meta">
+        <span>Record <code>__id</code></span>
+        <code id="idOut">—</code>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary" id="endBtn" disabled>
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-label">End Live Session</span>
+        </button>
+        <button type="button" class="ghost" id="refreshBtn">Refresh</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="text/javascript" charset="utf-8">
+    /* =========================================================
+       Shared refs + UI helpers
+       ========================================================= */
+    const API = 'https://sheetlabs.com/ET/MediaDB_1';
+    const STORAGE_KEY = 'liveId';
+
+    const bannerHost = document.getElementById('bannerHost');
+    const livePill   = document.getElementById('livePill');
+    const liveBody   = document.getElementById('liveBody');
+    const idOut      = document.getElementById('idOut');
+    const listenIn   = document.getElementById('listenlink');
+    const endForm    = document.getElementById('endForm');
+    const endBtn     = document.getElementById('endBtn');
+    const endLabel   = endBtn.querySelector('.btn-label');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    const ICONS = {
+      error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12.5"></line><circle cx="12" cy="16" r=".6" fill="currentColor" stroke="none"></circle></svg>',
+      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12.4 11 15.2 16 9.4"></polyline></svg>',
+      info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r=".6" fill="currentColor" stroke="none"></circle></svg>'
+    };
+
+    const esc = (v) => String(v == null ? '' : v)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+    function removeBanner(el) {
+      if (!el || el.dataset.leaving) return;
+      el.dataset.leaving = '1';
+      el.classList.add('is-leaving');
+      setTimeout(() => el.remove(), 250);
+    }
+
+    function showBanner(type, title, message, options) {
+      options = options || {};
+      if (options.replace !== false) {
+        Array.prototype.slice.call(bannerHost.children).forEach(removeBanner);
+      }
+      const el = document.createElement('div');
+      el.className = 'banner banner-' + type;
+      el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      el.innerHTML =
+        '<span class="banner-icon">' + (ICONS[type] || ICONS.info) + '</span>' +
+        '<div class="banner-body">' +
+          '<div class="banner-title"></div>' +
+          (message ? '<div class="banner-msg"></div>' : '') +
+        '</div>' +
+        '<button class="banner-close" type="button" aria-label="Dismiss">&#10005;</button>';
+      el.querySelector('.banner-title').textContent = title;
+      if (message) el.querySelector('.banner-msg').innerHTML = message;
+      el.querySelector('.banner-close').addEventListener('click', () => removeBanner(el));
+      bannerHost.prepend(el);
+      if (options.autoDismiss) setTimeout(() => removeBanner(el), options.autoDismiss);
+      return el;
+    }
+
+    function setActionBusy(isBusy) {
+      endForm.classList.toggle('is-busy', isBusy);
+      endBtn.classList.toggle('is-loading', isBusy);
+      endBtn.disabled = isBusy || !localStorage.getItem(STORAGE_KEY) || !listenIn.value.trim();
+      endLabel.textContent = isBusy ? 'Ending…' : 'End Live Session';
+    }
+
+    function syncEndButton() {
+      const hasId = !!localStorage.getItem(STORAGE_KEY);
+      const hasLink = !!listenIn.value.trim();
+      endBtn.disabled = endForm.classList.contains('is-busy') || !hasId || !hasLink;
+    }
+
+    function renderLive(rec) {
+      livePill.textContent = 'Live now';
+      livePill.classList.remove('is-empty');
+      livePill.classList.add('is-live');
+      liveBody.innerHTML =
+        '<div class="live-status"><span class="dot"></span><span>Broadcasting live</span></div>' +
+        '<dl class="meta">' +
+          '<div><dt>Event</dt><dd>' + esc(rec.event) + '</dd></div>' +
+          '<div><dt>Topic</dt><dd>' + esc(rec.topic) + '</dd></div>' +
+          '<div><dt>Speaker</dt><dd>' + esc(rec.minister) + '</dd></div>' +
+          '<div><dt>Date</dt><dd>' + esc(rec.day) + ' ' + esc(rec.month) + ', ' + esc(rec.year) + '</dd></div>' +
+          '<div style="grid-column:1/-1"><dt>Live URL</dt><dd>' +
+            (rec.livelink
+              ? '<a href="' + esc(rec.livelink) + '" target="_blank" rel="noopener">' + esc(rec.livelink) + '</a>'
+              : '<span style="color:var(--muted)">—</span>') +
+          '</dd></div>' +
+        '</dl>';
+    }
+
+    function renderNoLive() {
+      livePill.textContent = 'Offline';
+      livePill.classList.remove('is-live');
+      livePill.classList.add('is-empty');
+      liveBody.innerHTML =
+        '<div class="live-empty">' +
+          '<span class="ico">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+                 'stroke-linecap="round" stroke-linejoin="round">' +
+              '<circle cx="12" cy="12" r="9"></circle>' +
+              '<path d="M8 12h8"></path>' +
+            '</svg>' +
+          '</span>' +
+          '<div>' +
+            '<strong>No live session in progress</strong>' +
+            '<span>Nothing to end right now. Refresh to check again.</span>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function renderLoadError(msg) {
+      livePill.textContent = 'Error';
+      livePill.classList.remove('is-live');
+      livePill.classList.add('is-empty');
+      liveBody.innerHTML =
+        '<div class="live-empty">' +
+          '<span class="ico" style="color:var(--red-bright)">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+                 'stroke-linecap="round" stroke-linejoin="round">' +
+              '<circle cx="12" cy="12" r="9"></circle>' +
+              '<line x1="12" y1="8" x2="12" y2="12.5"></line>' +
+              '<circle cx="12" cy="16" r=".6" fill="currentColor" stroke="none"></circle>' +
+            '</svg>' +
+          '</span>' +
+          '<div>' +
+            '<strong>Unable to load live session</strong>' +
+            '<span>' + esc(msg || 'The server could not be reached.') + '</span>' +
+          '</div>' +
+        '</div>';
+    }
+
+    /* =========================================================
+       SCRIPT 1 — fetch the live record, save __id to localStorage
+       ========================================================= */
+    let liveRecord = null; // full record, needed for the PATCH body
+
+    async function loadLiveId() {
+      livePill.textContent = 'Checking…';
+      livePill.classList.remove('is-live');
+      livePill.classList.add('is-empty');
+      idOut.textContent = '—';
+      listenIn.value = '';
+      listenIn.disabled = true;
+      liveRecord = null;
+
+      try {
+        const res = await fetch(API);
+        if (!res.ok) throw new Error('Server responded with ' + res.status + ' ' + (res.statusText || ''));
+
+        const rows = await res.json();
+        if (!Array.isArray(rows)) throw new Error('Unexpected response format.');
+
+        const rec = rows.find(r => String(r.live) === '1') || null;
+
+        if (rec && rec.__id != null) {
+          liveRecord = rec;
+          localStorage.setItem(STORAGE_KEY, String(rec.__id));
+          idOut.textContent = String(rec.__id);
+          listenIn.value = rec.livelink ? String(rec.livelink) : '';
+          listenIn.disabled = false;
+          renderLive(rec);
+          syncEndButton();
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+          renderNoLive();
+          idOut.textContent = '—';
+          syncEndButton();
+        }
+      } catch (err) {
+        console.error('Failed to load live id:', err);
+        localStorage.removeItem(STORAGE_KEY);
+        renderLoadError(err && err.message);
+        showBanner(
+          'error',
+          'Could not reach the server',
+          'We couldn\'t fetch the live record. Check your connection and press <strong>Refresh</strong> to try again.' +
+          '<br><code>' + esc((err && err.message) || 'Unknown error') + '</code>'
+        );
+        syncEndButton();
+      }
+    }
+
+    refreshBtn.addEventListener('click', loadLiveId);
+    listenIn.addEventListener('input', syncEndButton);
+
+    /* =========================================================
+       SCRIPT 2 — PATCH using SheetLabs' expected shape:
+         body: [ { ...full record, __id, live:"0", listenlink:"..." } ]
+         success status: 204 No Content
+       ========================================================= */
+    async function endLiveSession(event) {
+      if (event) event.preventDefault();
+
+      const id = localStorage.getItem(STORAGE_KEY);
+      const newLink = listenIn.value.trim();
+
+      if (!id) {
+        showBanner('error', 'No live record found',
+          'We don\'t have a <code>__id</code> to patch. Refresh the page to fetch the current live session.');
+        return;
+      }
+      if (!newLink) {
+        showBanner('error', 'Listen link required',
+          'Enter the on-demand URL before ending the session.');
+        listenIn.focus();
+        return;
+      }
+      if (!liveRecord) {
+        showBanner('error', 'Live record not loaded',
+          'The full live record is missing. Press <strong>Refresh</strong> and try again.');
+        return;
+      }
+
+      /* Build the full record payload SheetLabs expects.
+         Spread the original so every required field is present,
+         then override the two we care about. */
+      const payload = [ Object.assign({}, liveRecord, {
+        live: '0',
+        listenlink: newLink
+      }) ];
+
+      setActionBusy(true);
+
+      try {
+        const res = await fetch(API, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.status === 204) {
+          console.log('Success!');
+
+          localStorage.removeItem(STORAGE_KEY);
+          liveRecord = null;
+
+          showBanner(
+            'success',
+            'Live session ended',
+            'The broadcast was moved to the archive. <code>live</code> is now <code>"0"</code> and the listen link was updated.',
+            { autoDismiss: 6000 }
+          );
+
+          await loadLiveId();
+        } else {
+          throw new Error('Something went wrong on api server! (status ' + res.status + ')');
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        const isNetwork = (err instanceof TypeError) ||
+          (typeof navigator !== 'undefined' && navigator.onLine === false);
+
+        showBanner(
+          'error',
+          isNetwork ? 'Network unreachable' : 'Could not end the session',
+          isNetwork
+            ? 'We couldn\'t reach the server. Check your connection and press <strong>End Live Session</strong> again — the id is still saved locally.'
+            : 'The update was rejected. The <code>__id</code> is still saved, so you can press <strong>End Live Session</strong> to retry.' +
+              '<br><code>' + esc((err && err.message) || 'Unknown error') + '</code>'
+        );
+      } finally {
+        setActionBusy(false);
+        syncEndButton();
+      }
+    }
+
+    endForm.addEventListener('submit', endLiveSession);
+
+    /* Boot */
+    loadLiveId();
+  </script>
+</body>
+
+</html>

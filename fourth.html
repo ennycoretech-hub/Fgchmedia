@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Edit Record</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="FGC Haastrup Media — Edit Record" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://fgchmedia.netlify.app" />
+  <meta property="og:image" content="https://fgchmedia.netlify.app/fav.jpeg" />
+  <meta property="og:description" content="Update an existing record in the FGC Haastrup Media library by locating it via its date." />
+  <meta property="og:site_name" content="FGC Haastrup Media" />
+
+  <style>
+    :root {
+      --bg: #0e0c0c;
+      --card: #1b1616;
+      --card-2: #161212;
+      --field: #0b0909;
+      --line: #2c2424;
+      --line-strong: #3d3131;
+      --text: #f4efec;
+      --muted: #a59893;
+      --muted-dim: #6f625e;
+
+      --red: #e5484d;
+      --red-bright: #ef5358;
+      --red-deep: #d13a3f;
+      --red-soft: rgba(229, 72, 77, .13);
+      --red-line: rgba(229, 72, 77, .45);
+
+      --green: #3fb950;
+      --gold: #e3b341;
+
+      --radius: 18px;
+      --shadow: 0 1px 0 rgba(255, 255, 255, .03), 0 24px 48px -28px rgba(0, 0, 0, .95);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 44px 16px 72px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 50% -180px, rgba(229, 72, 77, .20), transparent 70%),
+        radial-gradient(700px 380px at 100% 0%, rgba(229, 72, 77, .07), transparent 65%),
+        var(--bg);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+
+    /* ---------------- Header ---------------- */
+    .page-head { display: flex; flex-direction: column; gap: 10px; padding: 0 4px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 4px var(--red-soft);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4.2vw, 1.85rem);
+      font-weight: 650;
+      letter-spacing: -.03em;
+      line-height: 1.15;
+    }
+
+    .sub {
+      margin: 0;
+      max-width: 62ch;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.6;
+    }
+
+    /* ---------------- Banners ---------------- */
+    .banner-host { display: grid; gap: 12px; }
+
+    .banner {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .02);
+      animation: bannerIn .28s cubic-bezier(.2, .8, .3, 1);
+      transition: opacity .25s, transform .25s;
+    }
+    .banner.is-leaving { opacity: 0; transform: translateY(-6px); }
+    @keyframes bannerIn {
+      from { opacity: 0; transform: translateY(-8px) scale(.99); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .banner-icon { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 2px; }
+    .banner-icon svg { display: block; width: 100%; height: 100%; }
+
+    .banner-body { min-width: 0; }
+    .banner-title {
+      font-size: .92rem;
+      font-weight: 650;
+      color: #fff;
+      letter-spacing: -.01em;
+      margin-bottom: 3px;
+    }
+    .banner-msg { font-size: .85rem; line-height: 1.55; opacity: .9; }
+
+    .banner-close {
+      margin-left: auto;
+      flex: 0 0 auto;
+      background: transparent;
+      border: 1px solid transparent;
+      color: inherit;
+      opacity: .55;
+      font-size: .95rem;
+      line-height: 1;
+      padding: 4px 7px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: .15s;
+    }
+    .banner-close:hover { opacity: 1; background: rgba(255, 255, 255, .07); }
+
+    .banner-error {
+      background: linear-gradient(180deg, rgba(229, 72, 77, .16), rgba(229, 72, 77, .06));
+      border-color: var(--red-line);
+      box-shadow: 0 0 0 1px rgba(229, 72, 77, .08), 0 18px 40px -30px rgba(229, 72, 77, .9);
+      color: #ffd7d8;
+    }
+    .banner-error .banner-icon { color: var(--red-bright); }
+
+    .banner-success {
+      background: linear-gradient(180deg, rgba(63, 185, 80, .15), rgba(63, 185, 80, .05));
+      border-color: rgba(63, 185, 80, .42);
+      color: #d6f7dc;
+    }
+    .banner-success .banner-icon { color: var(--green); }
+
+    /* ---------------- Card ---------------- */
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--card), var(--card-2));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-loading {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .2s;
+      pointer-events: none;
+    }
+    .card-loading::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--red-bright), transparent);
+      animation: barSlide 1.1s ease-in-out infinite;
+    }
+    @keyframes barSlide {
+      0%   { transform: translateX(-120%); }
+      100% { transform: translateX(320%); }
+    }
+    .card.is-busy .card-loading { opacity: 1; }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--red-soft);
+      border: 1px solid rgba(229, 72, 77, .3);
+      color: #ffb3b5;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 5px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .pill.is-found {
+      background: rgba(227, 179, 65, .16);
+      border-color: rgba(227, 179, 65, .5);
+      color: var(--gold);
+    }
+    .pill.is-empty {
+      background: rgba(255, 255, 255, .04);
+      border-color: var(--line);
+      color: var(--muted);
+    }
+
+    /* ---------------- Date search row ---------------- */
+    .date-row {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .field { display: block; }
+    label {
+      display: block;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: .95rem;
+      color: var(--text);
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s, background .15s;
+    }
+    input[type="text"]::placeholder { color: var(--muted-dim); }
+    input[type="text"]:hover { border-color: var(--line-strong); }
+    input[type="text"]:focus {
+      border-color: var(--red);
+      background: #0d0a0a;
+      box-shadow: 0 0 0 3px var(--red-soft);
+    }
+    input[type="text"]:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    /* ---------------- Summary strip ---------------- */
+    .summary {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .015);
+    }
+    .summary[hidden] { display: none; }
+
+    .summary > div { min-width: 0; }
+    .summary dt {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .summary dd {
+      margin: 0;
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+    .summary dd a {
+      color: #ffb3b5;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(229, 72, 77, .4);
+      transition: color .15s, border-color .15s;
+    }
+    .summary dd a:hover { color: #fff; border-color: #fff; }
+
+    /* ---------------- Edit form grid ---------------- */
+    .edit-grid {
+      display: grid;
+      gap: 18px 16px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .full { grid-column: 1 / -1; }
+
+    /* ---------------- Actions ---------------- */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 20px;
+      font-family: inherit;
+      font-size: .9rem;
+      font-weight: 650;
+      letter-spacing: -.005em;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s,
+                  filter .15s, transform .08s, opacity .15s;
+    }
+    button:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px var(--red-soft), 0 0 0 1px var(--red);
+    }
+
+    .primary {
+      background: linear-gradient(180deg, var(--red-bright), var(--red-deep));
+      color: #fff;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22),
+                  0 12px 26px -14px rgba(229, 72, 77, .95);
+    }
+    .primary:hover:not(:disabled) { filter: brightness(1.07); }
+    .primary:active:not(:disabled) { transform: translateY(1px); }
+    .primary:disabled {
+      cursor: not-allowed;
+      filter: saturate(.5) brightness(.7);
+      box-shadow: none;
+    }
+
+    .ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--text);
+    }
+    .ghost:hover:not(:disabled) {
+      border-color: var(--red);
+      color: #ffb3b5;
+      background: var(--red-soft);
+    }
+    .ghost:disabled { opacity: .5; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      width: 15px;
+      height: 15px;
+      flex: 0 0 15px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, .35);
+      border-top-color: #fff;
+      animation: spin .65s linear infinite;
+    }
+    .primary.is-loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------------- Empty state ---------------- */
+    .empty-state {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 8px 0;
+      color: var(--muted);
+    }
+    .empty-state .ico {
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      color: var(--muted-dim);
+      margin-top: 2px;
+    }
+    .empty-state .ico svg { display: block; width: 100%; height: 100%; }
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: .95rem;
+      font-weight: 650;
+      margin-bottom: 2px;
+    }
+    .empty-state span { font-size: .88rem; line-height: 1.55; }
+
+    /* ---------------- Responsive ---------------- */
+    @media (max-width: 600px) {
+      body { padding: 28px 14px 56px; }
+      .card { padding: 22px 18px; border-radius: 16px; }
+      .actions { flex-direction: column; }
+      .actions button { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <header class="page-head">
+      <span class="eyebrow">Record Manager</span>
+      <h1>Edit Record</h1>
+      <p class="sub">
+        Locate an existing record by its date, update any field, and save the change.
+        Live status is managed elsewhere, so it won't be touched here.
+      </p>
+    </header>
+
+    <div class="banner-host" id="bannerHost" aria-live="polite"></div>
+
+    <!-- ============ Card 1: Find by date ============ -->
+    <section class="card" id="findCard">
+      <div class="card-loading"></div>
+
+      <div class="card-head">
+        <h2>Find a record</h2>
+        <span class="pill is-empty" id="statusPill">No record selected</span>
+      </div>
+
+      <div class="date-row">
+        <div class="field">
+          <label for="searchDay">Day</label>
+          <input type="text" id="searchDay" placeholder="e.g. 6th" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="searchMonth">Month</label>
+          <input type="text" id="searchMonth" placeholder="e.g. October" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="searchYear">Year</label>
+          <input type="text" id="searchYear" placeholder="e.g. 2026" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="primary" id="findBtn">Find Record</button>
+        <button type="button" class="ghost" id="refreshBtn">Refresh</button>
+      </div>
+    </section>
+
+    <!-- ============ Card 2: Edit ============ -->
+    <form class="card" id="editForm" novalidate>
+      <div class="card-loading"></div>
+
+      <div class="card-head">
+        <h2>Record details</h2>
+        <span class="pill">Update</span>
+      </div>
+
+      <div class="empty-state" id="editEmpty">
+        <span class="ico" id="hh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 7v5l3 2"></path>
+          </svg>
+        </span>
+        <div id="hhh">
+          <strong id="h">No record selected</strong>
+          <span id="hhhk">Enter a date above and press Find Record to load it here.</span>
+        </div>
+      </div>
+
+      <div id="editFields" hidden>
+        <dl class="summary" id="summary">
+          <div><dt>Event</dt><dd id="sumEvent">—</dd></div>
+          <div><dt>Topic</dt><dd id="sumTopic">—</dd></div>
+          <div><dt>Speaker</dt><dd id="sumSpeaker">—</dd></div>
+          <div><dt>Date</dt><dd id="sumDate">—</dd></div>
+          <div><dt>Live</dt><dd id="sumLive">—</dd></div>
+        </dl>
+
+        <div class="edit-grid">
+          <div class="field">
+            <label for="edDay">Day</label>
+            <input type="text" id="edDay" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="edMonth">Month</label>
+            <input type="text" id="edMonth" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="edYear">Year</label>
+            <input type="text" id="edYear" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="edEvent">Event</label>
+            <input type="text" id="edEvent" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="edMinister">Minister</label>
+            <input type="text" id="edMinister" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="edTopic">Topic</label>
+            <input type="text" id="edTopic" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="edText">Text</label>
+            <input type="text" id="edText" autocomplete="off">
+          </div>
+          <div class="field full">
+            <label for="edLiveLink">Live Link</label>
+            <input type="text" id="edLiveLink" placeholder="https://..." autocomplete="off" spellcheck="false">
+          </div>
+          <div class="field full">
+            <label for="edListenLink">Listen Link</label>
+            <input type="text" id="edListenLink" placeholder="https://..." autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="primary" id="updateBtn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-label">Update Record</span>
+          </button>
+          <button type="button" class="ghost" id="clearBtn">Clear Form</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    /* =========================================================
+       Config + refs
+       ========================================================= */
+    const API = 'https://sheetlabs.com/ET/MediaDB_1';
+    const STORAGE_KEY = 'recordId';
+ const hhh = document.getElementById('hhh');
+ const hh = document.getElementById('hh');
+    const bannerHost = document.getElementById('bannerHost');
+    const findCard   = document.getElementById('findCard');
+    const editForm   = document.getElementById('editForm');
+    const statusPill = document.getElementById('statusPill');
+    const findBtn    = document.getElementById('findBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const updateBtn  = document.getElementById('updateBtn');
+    const updateLbl  = updateBtn.querySelector('.btn-label');
+    const clearBtn   = document.getElementById('clearBtn');
+    const editEmpty  = document.getElementById('editEmpty');
+    const editFields = document.getElementById('editFields');
+
+    const sDay   = document.getElementById('searchDay');
+    const sMonth = document.getElementById('searchMonth');
+    const sYear  = document.getElementById('searchYear');
+
+    const edDay        = document.getElementById('edDay');
+    const edMonth      = document.getElementById('edMonth');
+    const edYear       = document.getElementById('edYear');
+    const edEvent      = document.getElementById('edEvent');
+    const edMinister   = document.getElementById('edMinister');
+    const edTopic      = document.getElementById('edTopic');
+    const edText       = document.getElementById('edText');
+    const edLiveLink   = document.getElementById('edLiveLink');
+    const edListenLink = document.getElementById('edListenLink');
+
+    const sumEvent   = document.getElementById('sumEvent');
+    const sumTopic   = document.getElementById('sumTopic');
+    const sumSpeaker = document.getElementById('sumSpeaker');
+    const sumDate    = document.getElementById('sumDate');
+    const sumLive    = document.getElementById('sumLive');
+
+    /* =========================================================
+       State
+       ========================================================= */
+    let data = [];              // full DB array
+    let currentRecord = null;   // full record of the matched row
+
+    /* =========================================================
+       UI helpers
+       ========================================================= */
+    const ICONS = {
+      error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12.5"></line><circle cx="12" cy="16" r=".6" fill="currentColor" stroke="none"></circle></svg>',
+      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12.4 11 15.2 16 9.4"></polyline></svg>'
+    };
+
+    function removeBanner(el) {
+      if (!el || el.dataset.leaving) return;
+      el.dataset.leaving = '1';
+      el.classList.add('is-leaving');
+      setTimeout(() => el.remove(), 250);
+    }
+
+    function showBanner(type, title, message, options) {
+      options = options || {};
+      if (options.replace !== false) {
+        Array.prototype.slice.call(bannerHost.children).forEach(removeBanner);
+      }
+      const el = document.createElement('div');
+      el.className = 'banner banner-' + type;
+      el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      el.innerHTML =
+        '<span class="banner-icon">' + (ICONS[type] || ICONS.error) + '</span>' +
+        '<div class="banner-body">' +
+          '<div class="banner-title"></div>' +
+          (message ? '<div class="banner-msg"></div>' : '') +
+        '</div>' +
+        '<button class="banner-close" type="button" aria-label="Dismiss">&#10005;</button>';
+      el.querySelector('.banner-title').textContent = title;
+      if (message) el.querySelector('.banner-msg').textContent = message;
+      el.querySelector('.banner-close').addEventListener('click', () => removeBanner(el));
+      bannerHost.prepend(el);
+      if (options.autoDismiss) setTimeout(() => removeBanner(el), options.autoDismiss);
+      return el;
+    }
+
+    function setFindBusy(isBusy) {
+      findCard.classList.toggle('is-busy', isBusy);
+      findBtn.disabled = isBusy;
+      refreshBtn.disabled = isBusy;
+      findBtn.textContent = isBusy ? 'Searching…' : 'Find Record';
+    }
+
+    function setUpdateBusy(isBusy) {
+      editForm.classList.toggle('is-busy', isBusy);
+      updateBtn.classList.toggle('is-loading', isBusy);
+      updateBtn.disabled = isBusy;
+      updateLbl.textContent = isBusy ? 'Updating…' : 'Update Record';
+      clearBtn.disabled = isBusy;
+    }
+
+    function setStatusFound(rec) {
+      statusPill.classList.remove('is-empty');
+      hhh.style.display = 'none'
+      hh.style.display = 'none'
+      statusPill.classList.add('is-found');
+      statusPill.textContent = 'Editing: ' + (rec.event || 'record');
+    }
+
+    function setStatusNone() {
+      statusPill.classList.remove('is-found');
+      hhh.style.display='block'
+      hh.style.display = 'block'
+      statusPill.classList.add('is-empty');
+      statusPill.textContent = 'No record selected';
+    }
+
+    /* =========================================================
+       Render helpers
+       ========================================================= */
+    function fillSummary(rec) {
+      sumEvent.textContent   = rec.event    || '—';
+      sumTopic.textContent   = rec.topic    || '—';
+      sumSpeaker.textContent = rec.minister || '—';
+      sumDate.textContent    = [rec.day, rec.month, rec.year].filter(Boolean).join(' ') || '—';
+
+      const liveStr = String(rec.live);
+      if (liveStr === '1') {
+        sumLive.innerHTML = '<span style="color:var(--green)">● Live now</span>';
+      } else if (liveStr === '0') {
+        sumLive.textContent = 'Archived';
+      } else {
+        sumLive.textContent = liveStr || '—';
+      }
+    }
+
+    function fillEditForm(rec) {
+      edDay.value        = rec.day        || '';
+      edMonth.value      = rec.month      || '';
+      edYear.value       = rec.year       || '';
+      edEvent.value      = rec.event      || '';
+      edMinister.value   = rec.minister   || '';
+      edTopic.value      = rec.topic      || '';
+      edText.value       = rec.text       || '';
+      edLiveLink.value   = rec.livelink   || '';
+      edListenLink.value = rec.listenlink || '';
+    }
+
+    function clearEditForm() {
+      [edDay, edMonth, edYear, edEvent, edMinister, edTopic, edText, edLiveLink, edListenLink]
+        .forEach(el => { el.value = ''; });
+    }
+
+    function showEditLocked() {
+      editFields.hidden = true;
+      editEmpty.hidden = false;
+      setStatusNone();
+    }
+
+    function showEditUnlocked(rec) {
+      editEmpty.hidden = true;
+      editFields.hidden = false;
+      fillSummary(rec);
+      fillEditForm(rec);
+      setStatusFound(rec);
+    }
+
+    /* =========================================================
+       Data loading
+       ========================================================= */
+    async function loadData() {
+      setFindBusy(true);
+      try {
+        const res = await fetch(API);
+        if (!res.ok) throw new Error('bad response');
+        const rows = await res.json();
+        if (!Array.isArray(rows)) throw new Error('bad shape');
+        data = rows;
+        return true;
+      } catch (err) {
+        console.error(err);
+        showBanner('error', 'Error',
+          'Couldn\'t load the library. Refresh to try again.');
+        return false;
+      } finally {
+        setFindBusy(false);
+      }
+    }
+
+    /* =========================================================
+       Find by date
+       ========================================================= */
+    function normalize(v) {
+      return String(v == null ? '' : v).trim().toLowerCase();
+    }
+
+    function findRecordByDate(day, month, year) {
+      const d = normalize(day);
+      const m = normalize(month);
+      const y = normalize(year);
+
+      if (!d || !m || !y) return null;
+
+      return data.find(r =>
+        normalize(r.day) === d &&
+        normalize(r.month) === m &&
+        normalize(r.year) === y
+      ) || null;
+    }
+
+    async function handleFind() {
+      if (!data.length) {
+        const ok = await loadData();
+        if (!ok) return;
+      }
+
+      const rec = findRecordByDate(sDay.value, sMonth.value, sYear.value);
+
+      if (!rec) {
+        localStorage.removeItem(STORAGE_KEY);
+        currentRecord = null;
+        clearEditForm();
+        showEditLocked();
+        showBanner('error', 'Error', 'No record found for that date.');
+        return;
+      }
+
+      currentRecord = rec;
+      if (rec.__id != null) {
+        localStorage.setItem(STORAGE_KEY, String(rec.__id));
+      }
+
+      showEditUnlocked(rec);
+      showBanner('success', 'Record found', 'You can edit the fields below and save your changes.',
+        { autoDismiss: 3500 });
+    }
+
+    /* =========================================================
+       Refresh
+       ========================================================= */
+    async function handleRefresh() {
+      localStorage.removeItem(STORAGE_KEY);
+      currentRecord = null;
+      clearEditForm();
+      showEditLocked();
+
+      const ok = await loadData();
+      if (!ok) return;
+
+      const hasDate = sDay.value.trim() && sMonth.value.trim() && sYear.value.trim();
+      if (hasDate) {
+        await handleFind();
+      } else {
+        showBanner('success', 'Library refreshed', 'Enter a date to find a record.',
+          { autoDismiss: 3000 });
+      }
+    }
+
+    /* =========================================================
+       Update (PATCH)
+       ========================================================= */
+    async function handleUpdate(event) {
+      if (event) event.preventDefault();
+
+      if (!currentRecord) {
+        showBanner('error', 'Error', 'Find a record first, then edit it.');
+        return;
+      }
+
+      const newListenLink = edListenLink.value.trim();
+      if (!newListenLink) {
+        showBanner('error', 'Error', 'The listen link can\'t be empty.');
+        edListenLink.focus();
+        return;
+      }
+
+      /* Build the full record for SheetLabs PATCH:
+         keep __id, live, listenav and any other untouched fields as-is.
+         Only overwrite the fields this page exposes. */
+      const payload = [ Object.assign({}, currentRecord, {
+        day:        edDay.value.trim(),
+        month:      edMonth.value.trim(),
+        year:       edYear.value.trim(),
+        event:      edEvent.value.trim(),
+        minister:   edMinister.value.trim(),
+        topic:      edTopic.value.trim(),
+        text:       edText.value.trim(),
+        livelink:   edLiveLink.value.trim(),
+        listenlink: newListenLink
+      }) ];
+
+      setUpdateBusy(true);
+
+      try {
+        const res = await fetch(API, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.status === 204) {
+          showBanner('success', 'Success', 'Record updated.',
+            { autoDismiss: 5000 });
+
+          // Re-fetch and re-find so the card shows the new values.
+          await handleRefresh();
+        } else {
+          throw new Error('bad status');
+        }
+      } catch (err) {
+        console.error(err);
+        const isNetwork = (err instanceof TypeError) ||
+          (typeof navigator !== 'undefined' && navigator.onLine === false);
+
+        showBanner('error', 'Error',
+          isNetwork
+            ? 'Couldn\'t reach the server. Check your connection and try again.'
+            : 'Couldn\'t update the record. Please try again.');
+      } finally {
+        setUpdateBusy(false);
+      }
+    }
+
+    /* =========================================================
+       Wiring
+       ========================================================= */
+    findBtn.addEventListener('click', handleFind);
+    refreshBtn.addEventListener('click', handleRefresh);
+    editForm.addEventListener('submit', handleUpdate);
+    clearBtn.addEventListener('click', () => {
+      if (currentRecord) fillEditForm(currentRecord);
+    });
+
+    [sDay, sMonth, sYear].forEach(el => {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); handleFind(); }
+      });
+    });
+
+    /* =========================================================
+       Boot
+       ========================================================= */
+    (async function boot() {
+      showEditLocked();
+      await loadData();
+    })();
+  </script>
+</body>
+
+</html>
