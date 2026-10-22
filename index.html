@@ -280,7 +280,7 @@
   }
 
   /* 6 — Listen link */
-  .panel a {
+  .panel a,.kgms{
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -463,7 +463,7 @@
 
   <div id="hea"></div>
   <div id="top"></div>
-
+ <a class="kgms" href="mailto: foursquarejesuscaresassembly@gmail.com?subject=Audio Libabry User Report" style="text-decoration:none; text-transform:uppercase;  margin:5%; display:block; border-color:none">Having a problem with  listening? click me  </a>
 <script>
 let data
 async function fft(){
@@ -589,8 +589,12 @@ function liv(){
       let tp = document.createElement('p')
       let fp = document.createElement('p')
       let fhp = document.createElement('p')
-
-      mar.innerHTML = `● LIVE  ·  ${data[i].livelink}  —  ${data[i].topic}  ·  Speaker: ${data[i].minister}  ·  ${data[i].text}  ·  ${data[i].day} of ${data[i].month}, ${data[i].year}`
+            let spp = document.createElement('a')
+      spp.className = 'kgms'
+      spp.innerHTMl = 'Click to listen live'
+      spp.href = data[i].livelink
+      
+      mar.innerHTML = `● LIVE  ·  Topic  —  ${data[i].topic}  ·  Speaker: ${data[i].minister}  ·  ${data[i].text}  ·  ${data[i].day} of ${data[i].month}, ${data[i].year}`
 
       pd.className = 'pan'
       tp.innerHTML = `${data[i].event}`
@@ -606,6 +610,8 @@ function liv(){
       pd.appendChild(fp)
       pd.appendChild(pp)
       pd.appendChild(fhp)
+      pd.appendChild(spp)
+    spp.style.margin ='8px'
       topu.appendChild(pd)
       break
     }
